@@ -10,6 +10,9 @@ function Signup({userLogin}) {
   const navigate = useNavigate();
 
   const api='http://localhost:3000'
+
+  const token=localStorage.getItem('token')
+  
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!id || !password) {
