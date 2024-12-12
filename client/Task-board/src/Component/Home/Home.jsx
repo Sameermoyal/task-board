@@ -2,19 +2,19 @@ import React, { useEffect, useState } from 'react'
 import axios from 'axios'
 import "./Home.css"
 import { Link } from 'react-router-dom'
-import Dnd from "../DropAndDrag/Dnd"
+import { useNavigate } from 'react-router-dom'
 
 function Home() {
-const [data,setData]=useState([])
-
-const api='http://localhost:3000'
+const [data,setData]=useState([]);
+const navigate=useNavigate();
+const api='http://localhost:3000';
 
 useEffect(()=>{
     const fetchData = async () => {
         try {
           const token =localStorage.getItem('token')
           const res = await axios.get(`${api}/getAll`,{
-            headers :{
+             headers :{
               authorization : `Bearer ${token}`
           }});
           console.log("data>>>>", res.data.listPopulate);
@@ -42,26 +42,32 @@ function handleDragStart(event,idObj){
   const getData=e.dataTransfer.getData('text')
   const dragIds=JSON.parse(getData)
   console.log("dragIds :",dragIds,"dropIds :",dropIds)
-  
+  dropUpdate()
   async function dropUpdate() {
     try {
       const token = localStorage.getItem('token');
-      await axios.patch(`${api}/dndAdd`, { dropIds,dragIds}, {
-        headers: { authorization: `Bearer ${token}` }
-      });
-      navigate('/');
+      const response =await axios.patch(`${api}/dndAdd`, { dropIds,dragIds}, {headers: { authorization: `Bearer ${token}` }});
+      setData(response.data.listPopulate)
     } catch (error) {
       console.log("Error adding task:", error);
       setError("Adding updation failed.");
     }  
   }
+  }
 
-  dropUpdate()
- 
-
- }
-
-
+  async function deleteTask(taskId) {
+    try {
+      console.log("delete api call")
+      const token = localStorage.getItem('token');
+     const response= await axios.delete(`${api}/deleteTask/${taskId}`, {
+        headers: { authorization: `Bearer ${token}` },
+      });
+      console.log("afetr delete api call")
+      setData((prevData) => prevData.filter((item) => item.taskId._id !== taskId));
+    } catch (error) {
+      console.log("Error deleting task:", error);
+    }
+  }
   return (
     <div className='home-page'>
      {data.map(listItem=>{
@@ -70,7 +76,8 @@ function handleDragStart(event,idObj){
             onDragOver={handleOnDragOver}
             onDrop={event=>handleOnDrop(event,listItem._id, listItem.taskId._id )}
             >
-                <h1 className='list-title'>{listItem.taskId?.title || "Un Titeled Task"}</h1>
+                <h1 className='list-title'><button style={{background:"red"}} onClick={()=>{deleteTask(listItem.taskId._id)}} >D</button>{listItem.taskId?.title || "Un Titeled Task"}</h1>
+                
                 <div className='list-description'>
                 {listItem.descriptionList && listItem.descriptionList.length > 0 ? (
                 listItem.descriptionList.map((description, descItem) => (
@@ -80,7 +87,7 @@ function handleDragStart(event,idObj){
                   >{description}</h5>
                 ))
               ) : (
-                <h5 className="list-detail">No details available</h5>
+                <h5 className="list-detail" style={{background:"red"}}>No description available</h5>
               )}
 
                 </div>
