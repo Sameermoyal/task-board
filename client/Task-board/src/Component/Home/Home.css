@@ -29,9 +29,14 @@
     background-color: rgba(255, 228, 196, 0.447);
     height: 50px;
     line-height: 50px;
-    text-align: center; 
     font-weight: bold;
     margin-bottom: 10px; 
+    display: flex;
+    justify-content: space-between;
+}
+.list-title h1{
+ padding-left: 30px;
+ background-color: rgba(255, 228, 196, 0.447);
 }
 
 .list-description {
